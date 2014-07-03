@@ -1,4 +1,5 @@
 #import "helpers.h"
+#import "geom_util.h"
 
 static hydradoc doc_mouse_get = {
     "mouse", "get", "mouse.get() -> point",
@@ -8,10 +9,9 @@ static hydradoc doc_mouse_get = {
 int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);
     CGPoint p = CGEventGetLocation(ourEvent);
-    
-    lua_newtable(L);
-    lua_pushnumber(L, p.x); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, p.y); lua_setfield(L, -2, "y");
+
+    hydra_push_nspoint(L, NSPointFromCGPoint(p));
+
     return 1;
 }
 
@@ -21,10 +21,7 @@ static hydradoc doc_mouse_set = {
 };
 
 int mouse_set(lua_State* L) {
-    CGFloat x = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
-    CGFloat y = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
-    
-    CGPoint p = CGPointMake(x, y);
+    CGPoint p = NSPointToCGPoint(hydra_to_nspoint(L, 1));
     CGWarpMouseCursorPosition(p);
     return 0;
 }
