@@ -1,4 +1,6 @@
 #import "helpers.h"
+#import "geom_util.h"
+
 void new_application(lua_State* L, pid_t pid);
 
 static AXUIElementRef axref_for_window(lua_State* L, int idx) {
@@ -204,9 +206,7 @@ int window_topleft(lua_State* L) {
     if (positionStorage)
         CFRelease(positionStorage);
     
-    lua_newtable(L);
-    lua_pushnumber(L, topLeft.x); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, topLeft.y); lua_setfield(L, -2, "y");
+    hydra_push_nspoint(L, topLeft);
     
     return 1;
 }
@@ -238,9 +238,7 @@ int window_size(lua_State* L) {
     if (sizeStorage)
         CFRelease(sizeStorage);
     
-    lua_newtable(L);
-    lua_pushnumber(L, size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, size.height); lua_setfield(L, -2, "h");
+    hydra_push_nssize(L, size);
     
     return 1;
 }
@@ -253,11 +251,7 @@ static hydradoc doc_window_settopleft = {
 int window_settopleft(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
-    
-    CGFloat x = (lua_getfield(L, 2, "x"), lua_tonumber(L, -1));
-    CGFloat y = (lua_getfield(L, 2, "y"), lua_tonumber(L, -1));
-    
-    CGPoint thePoint = CGPointMake(x, y);
+    CGPoint thePoint = NSPointToCGPoint(hydra_to_nspoint(L, 2));
     
     CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
@@ -275,10 +269,7 @@ static hydradoc doc_window_setsize = {
 int window_setsize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
-    
-    CGFloat w = (lua_getfield(L, 2, "w"), lua_tonumber(L, -1));
-    CGFloat h = (lua_getfield(L, 2, "h"), lua_tonumber(L, -1));
-    CGSize theSize = CGSizeMake(w, h);
+    CGSize theSize = NSSizeToCGSize(hydra_to_nssize(L, 2));
     
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
