@@ -1,21 +1,18 @@
 #import "helpers.h"
+#import "geom_util.h"
 
 static hydradoc doc_screen_frame = {
     "screen", "frame", "screen.frame(screen) -> rect",
     "Returns a screen's frame in its own coordinate space."
 };
 
-int screen_frame(lua_State* L) {
+int screen_frame(lua_State *L) {
     lua_getfield(L, 1, "__screen");
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    NSScreen *screen = (__bridge NSScreen *)*((void **)lua_touserdata(L, -1));
     
-    NSRect r = [screen frame];
+    NSRect frame = [screen frame];
     
-    lua_newtable(L);
-    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
-    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
-    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
+    hydra_push_nsrect(L, frame);
     
     return 1;
 }
@@ -25,17 +22,13 @@ static hydradoc doc_screen_visibleframe = {
     "Returns a screen's frame in its own coordinate space, without the dock or menu."
 };
 
-int screen_visibleframe(lua_State* L) {
+int screen_visibleframe(lua_State *L) {
     lua_getfield(L, 1, "__screen");
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    NSScreen* screen = (__bridge NSScreen *)*((void **)lua_touserdata(L, -1));
     
-    NSRect r = [screen visibleFrame];
-    
-    lua_newtable(L);
-    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
-    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
-    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
+    NSRect frame = [screen visibleFrame];
+
+    hydra_push_nsrect(L, frame);
     
     return 1;
 }
