@@ -1,5 +1,7 @@
 #import "helpers.h"
 #import "HDTextGridController.h"
+#import "geom_util.h"
+
 void new_window_for_nswindow(lua_State* L, NSWindow* win);
 
 static NSColor* HDColorFromHex(const char* hex) {
@@ -146,14 +148,9 @@ static hydradoc doc_textgrid_resize = {
 
 static int textgrid_resize(lua_State *L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
+    NSSize new_size = hydra_to_nssize(L, 2);
     
-    lua_getfield(L, 2, "w");
-    int w = lua_tonumber(L, -1);
-    
-    lua_getfield(L, 2, "h");
-    int h = lua_tonumber(L, -1);
-    
-    [wc useGridSize:NSMakeSize(w, h)];
+    [wc useGridSize:new_size];
     
     return 0;
 }
